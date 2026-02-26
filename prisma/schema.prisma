@@ -11,4 +11,15 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  role      String   // 'admin' หรือ 'staff'
+  createdAt DateTime @default(now())
 }
