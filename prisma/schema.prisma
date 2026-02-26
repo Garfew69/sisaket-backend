@@ -1,19 +1,17 @@
-// 1. ตัวสร้าง Client (ต้องมีอันเดียว)
 generator client {
   provider = "prisma-client-js"
 }
 
-// 2. การเชื่อมต่อฐานข้อมูล (ต้องระบุ url)
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // วางลิงก์ตรงๆ ลงในเครื่องหมายคำพูดเลยครับ
+  url      = "ลิงก์_DATABASE_URL_จาก_Supabase_ของคุณ" 
 }
 
-// 3. ตารางผู้ใช้งาน
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
   password  String
-  role      String   // 'admin' หรือ 'staff'
+  role      String
   createdAt DateTime @default(now())
 }
