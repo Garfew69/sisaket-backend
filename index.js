@@ -9,14 +9,19 @@ const prisma = new PrismaClient();
 const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'sisaket_secret_2026';
 
-// สำคัญ: ปรับ CORS ให้รับข้อมูลจากทุกที่ (รวมถึง Vercel)
+// บรรทัดนี้สำคัญมาก ต้องอยู่ก่อน API อื่นๆ
 app.use(cors());
 app.use(express.json());
 
-// API Login
+// เช็คหน้าแรกว่า API ออนไลน์ไหม
+app.get('/', (req, res) => {
+  res.send('✅ Sisaket Ready API is running...');
+});
+
+// API สำหรับล็อกอิน
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  console.log(`🔑 Login Attempt: ${username}`);
+  console.log("Login attempt for:", username);
 
   try {
     const user = await prisma.user.findUnique({
@@ -29,20 +34,18 @@ app.post('/api/login', async (req, res) => {
         JWT_SECRET,
         { expiresIn: '1d' }
       );
-      console.log(`✅ Success: ${username} (${user.role})`);
       return res.json({ message: 'Success', token, role: user.role });
     }
 
-    console.log(`❌ Failed: Invalid credentials for ${username}`);
     res.status(401).json({ message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
   } catch (error) {
-    console.error("❌ Database Error:", error.message);
-    res.status(500).json({ message: 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาเช็ค DATABASE_URL' });
+    console.error("Database Error:", error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
-// API Dashboard (ค่าคงที่สำหรับทดสอบตามรูปที่ 3)
-app.get('/api/dashboard', async (req, res) => {
+// API สำหรับดึงข้อมูล Dashboard
+app.get('/api/dashboard', (req, res) => {
   res.json({
     totalShelters: 944,
     pendingRequests: 0,
@@ -50,6 +53,6 @@ app.get('/api/dashboard', async (req, res) => {
   });
 });
 
-app.get('/', (req, res) => res.send('API Running...'));
-
-app.listen(port, () => console.log(`🚀 Server on port ${port}`));
+app.listen(port, () => {
+  console.log(`🚀 Server is running on port ${port}`);
+});
